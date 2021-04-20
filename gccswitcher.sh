@@ -57,7 +57,7 @@ function gcc-workon {
     fi
 
     export PATH="$GCC_ARCHIVE/$_workon_env_name/bin:$PATH"
-    LD_LIBRARY_PATH="/lib:/lib64:/usr/lib:/usr/lib64:/usr/local/lib:/usr/local/lib64":$LD_LIBRARY_PATH
+    # LD_LIBRARY_PATH="/lib:/lib64:/usr/lib:/usr/lib64:/usr/local/lib:/usr/local/lib64":$LD_LIBRARY_PATH
     export LD_LIBRARY_PATH="$GCC_ARCHIVE/$_workon_env_name/lib64:$GCC_ARCHIVE/$_workon_env_name/lib:$LD_LIBRARY_PATH"
     export PS1="\[\033[35m\][$_workon_env_name]\[\033[0m\]$PS1"
     export _gcc_switcher_worked_on=true
