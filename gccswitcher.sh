@@ -10,7 +10,7 @@
 # switch your shell environment to any version of cuda and cudnn quikly.
 
 ##############################################################
-if [ "$GCC_ARCHIVE" == "" ]; then export GCC_ARCHIVE=/usr/local; fi
+if [ "$GCC_ARCHIVE" = "" ]; then export GCC_ARCHIVE=/usr/local; fi
 
 function _gccswitcher_initlize {
 
@@ -28,9 +28,12 @@ function _help {
     return 0
 }
 
-
 # this command could switch your environments to an existed gcc-switcher
 function gcc-workon {
+    if [ "$#" -lt 1 ];then
+        echo "Please specify a gcc version you want to change to"
+        return 127
+    fi
 
     if [ "$_gcc_switcher_worked_on" == true ]; then
         gcc-deactive
@@ -38,16 +41,7 @@ function gcc-workon {
         return 0
     fi
 
-    if [ "$_gcc_switcher_bak_LDLIBRARY_PATH" == "" ]; then export _gcc_switcher_bak_LDLIBRARY_PATH="$LD_LIBRARY_PATH"; fi
-    if [ "$_gcc_switcher_bak_PATH" == "" ]; then export export _gcc_switcher_bak_PATH="$PATH"; fi
-    if [ "$_gcc_switcher_bak_PS1" == "" ]; then export _gcc_switcher_bak_PS1="$PS1"; fi
-
     if [ "$_gcc_switcher_worked_on" == "" ]; then export _gcc_switcher_worked_on=false; fi
-
-    if [ "$#" -lt 1 ];then
-        echo "Please specify a gcc version you want to change to"
-        return 127
-    fi
 
     local _workon_env_name="$1"
 
@@ -56,10 +50,15 @@ function gcc-workon {
         return 127
     fi
 
-    export PATH="$GCC_ARCHIVE/$_workon_env_name/bin:$PATH"
-    # LD_LIBRARY_PATH="/lib:/lib64:/usr/lib:/usr/lib64:/usr/local/lib:/usr/local/lib64":$LD_LIBRARY_PATH
-    export LD_LIBRARY_PATH="$GCC_ARCHIVE/$_workon_env_name/lib64:$GCC_ARCHIVE/$_workon_env_name/lib:$LD_LIBRARY_PATH"
-    export PS1="\[\033[35m\][$_workon_env_name]\[\033[0m\]$PS1"
+    _gcc_PATH="$GCC_ARCHIVE/$_workon_env_name/bin"
+    export PATH="${_gcc_PATH}:$PATH"
+
+    _gcc_LD_PATH="$GCC_ARCHIVE/$_workon_env_name/lib64:$GCC_ARCHIVE/$_workon_env_name/lib"
+    export LD_LIBRARY_PATH="$_gcc_LD_PATH:$LD_LIBRARY_PATH"
+
+    _gcc_PS_PATH="\[\033[35m\][$_workon_env_name]\[\033[0m\]"
+    export PS1="${_gcc_PS_PATH}$PS1"
+
     export _gcc_switcher_worked_on=true
     export _gcc_active_env_name=$_workon_env_name
     return 0
@@ -69,15 +68,14 @@ function gcc-workon {
 function gcc-deactive {
     if [ "$_gcc_switcher_worked_on" == false ]; then
         echo "gcc-switcher: error: no gcc active, or actived gcc is missing"
-        return 0
+        return 127
     fi
-    export LD_LIBRARY_PATH=$_gcc_switcher_bak_LDLIBRARY_PATH
-    export PATH=$_gcc_switcher_bak_PATH
-    export PS1=$_gcc_switcher_bak_PS1
+    export PATH=$(echo $PATH | sed "s#${_gcc_PATH}:##")
+    export LD_LIBRARY_PATH=$(echo $LD_LIBRARY_PATH | sed "s#${_gcc_LD_PATH}:##")
+    export PS1=$(python -c "print(r'$PS1'.replace(r'$_gcc_PS_PATH',''))")
     export _gcc_switcher_worked_on=false
     unset _gcc_active_env_name
 }
-
 
 function _gcc_version_complete_func {
     local cur prev opts

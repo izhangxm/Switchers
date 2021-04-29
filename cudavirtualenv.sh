@@ -141,6 +141,10 @@ function cuda-mkvirtualenv {
 
 # this command could switch your environments to an existed cuda-virtualenv
 function cuda-workon {
+    if [ "$#" -lt 1 ];then
+        echo "Please specify an environment name you want to change to"
+        return 127
+    fi
 
     if [ "$_cuda_switcher_worked_on" == true ]; then
         cuda-deactive
@@ -148,15 +152,7 @@ function cuda-workon {
         return 0
     fi
 
-    if [ "$_cuda_switcher_bak_LDLIBRARY_PATH" == "" ]; then export _cuda_switcher_bak_LDLIBRARY_PATH="$LD_LIBRARY_PATH"; fi
-    if [ "$_cuda_switcher_bak_PATH" == "" ]; then export export _cuda_switcher_bak_PATH="$PATH"; fi
-    if [ "$_cuda_switcher_bak_PS1" == "" ]; then export _cuda_switcher_bak_PS1="$PS1"; fi
     if [ "$_cuda_switcher_worked_on" == "" ]; then export _cuda_switcher_worked_on=false; fi
-
-    if [ "$#" -lt 1 ];then
-        echo "Please specify an environment name you want to change to"
-        return 127
-    fi
 
     local _workon_env_name="$1"
 
@@ -165,10 +161,16 @@ function cuda-workon {
         return 127
     fi
 
-    export PATH="$CUDA_ENVHOME/$_workon_env_name/bin:$PATH"
-    LD_LIBRARY_PATH="/lib:/lib64:/usr/lib:/usr/lib64:/usr/local/lib:/usr/local/lib64"
-    export LD_LIBRARY_PATH="$CUDA_ENVHOME/$_workon_env_name/lib64:$LD_LIBRARY_PATH"
-    export PS1="\[\033[32m\][NVIDIA:$_workon_env_name]\[\033[0m\]$PS1"
+    _cuda_PATH="$CUDA_ENVHOME/$_workon_env_name/bin"
+    export PATH="$_cuda_PATH:$PATH"
+
+    _cuda_LD_PATH="$CUDA_ENVHOME/$_workon_env_name/lib64"
+    export LD_LIBRARY_PATH="$_cuda_LD_PATH:$LD_LIBRARY_PATH"
+
+
+    _cuda_PS_PATH="\[\033[32m\][NVIDIA:$_workon_env_name]\[\033[0m\]"
+    export PS1="${_cuda_PS_PATH}$PS1"
+
     export _cuda_switcher_worked_on=true
     export _cuda_active_env_name=$_workon_env_name
     return 0
@@ -178,11 +180,13 @@ function cuda-workon {
 function cuda-deactive {
     if [ "$_cuda_switcher_worked_on" == false ]; then
         echo "cuda-virtualenv: error: no cuda virtualenv active, or active virtualenv is missing"
-        return 0
+        return 127
     fi
-    export LD_LIBRARY_PATH=$_cuda_switcher_bak_LDLIBRARY_PATH
-    export PATH=$_cuda_switcher_bak_PATH
-    export PS1=$_cuda_switcher_bak_PS1
+
+    export PATH=$(echo $PATH | sed "s#${_cuda_PATH}:##")
+    export LD_LIBRARY_PATH=$(echo $LD_LIBRARY_PATH | sed "s#${_cuda_LD_PATH}:##")
+    export PS1=$(python -c "print(r'$PS1'.replace(r'$_cuda_PS_PATH',''))")
+
     export _cuda_switcher_worked_on=false
     unset _cuda_active_env_name
 }
@@ -282,14 +286,14 @@ _cudamkenv_complete_func()
         done
 
         if [ -n "$_cudnnv" ]; then
-            local _cudav_valid_stage1=(`ll $CUDNN_ARCHIVE 2>/dev/null | grep "^d" | awk '{print $9}' | grep "cudnn-$_cudnnv-" | cut -d '-' -f 4`)
+            local _cudav_valid_stage1=(`\ls -l $CUDNN_ARCHIVE 2>/dev/null | grep "^d" | awk '{print $9}' | grep "cudnn-$_cudnnv-" | cut -d '-' -f 4`)
             for _cav in ${_cudav_valid_stage1[@]}; do
                 if [ -d "$CUDA_ARCHIVE/cuda-$_cav" ];then
                     opts="$opts $_cav"
                 fi
             done
         else
-            opts="$(ll $CUDA_ARCHIVE 2>/dev/null | grep "^d" | awk '{print $9}' | grep 'cuda-.*' | cut -d '-' -f 2 | tr '\n' " ")"
+            opts="$(\ls -l $CUDA_ARCHIVE 2>/dev/null | grep "^d" | awk '{print $9}' | grep 'cuda-.*' | cut -d '-' -f 2 | tr '\n' " ")"
         fi
 
     elif [[ ${prev} == '--cudnnv' ]] ; then
@@ -302,9 +306,9 @@ _cudamkenv_complete_func()
         done
 
         if [ -n "$_cudav" ]; then
-            opts="$(ll $CUDNN_ARCHIVE 2>/dev/null | grep "^d" | awk '{print $9}' | grep "cudnn-.*-forcuda-$_cudav" | cut -d '-' -f 2 | tr '\n' " ")"
+            opts="$(\ls -l $CUDNN_ARCHIVE 2>/dev/null | grep "^d" | awk '{print $9}' | grep "cudnn-.*-forcuda-$_cudav" | cut -d '-' -f 2 | tr '\n' " ")"
         else
-            opts="$(ll $CUDNN_ARCHIVE 2>/dev/null  | grep "^d" | awk '{print $9}' | grep 'cudnn-.*' | cut -d '-' -f 2 | tr '\n' " ")"
+            opts="$(\ls -l $CUDNN_ARCHIVE 2>/dev/null  | grep "^d" | awk '{print $9}' | grep 'cudnn-.*' | cut -d '-' -f 2 | tr '\n' " ")"
         fi
     elif [[ ${prev} == '--envname' ]] ; then
         opts=''
@@ -327,7 +331,7 @@ function _cuda_version_complete_func {
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
     if [ ${#COMP_WORDS[@]} -eq 2 ]; then
-        opts="$(ll $CUDA_ENVHOME 2>/dev/null | grep "^d" | awk '{print $9}' | tr '\n' " ")"
+        opts="$(\ls -l $CUDA_ENVHOME 2>/dev/null | grep "^d" | awk '{print $9}' | tr '\n' " ")"
     else
         opts=""
     fi
