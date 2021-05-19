@@ -113,6 +113,10 @@ export GCC_ARCHIVE=$GCC_HOME/gcc-archive
 source /usr/local/bin/gccswitcher.sh
 EOF
 
+CUDA_ENV_HOME=$NVIDIA_HOME/cuda_envs
+mkdir -p $CUDA_ENV_HOME
+chmod 1777 $CUDA_ENV_HOME
+
 echo "Finished install!"
 
 

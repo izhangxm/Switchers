@@ -12,10 +12,9 @@
 ##############################################################
 
 function _cudaswitcher_initlize {
-    export userName=$(whoami)
     if [ ! -d "$CUDA_ARCHIVE" ]; then echo "cuda-virtualenv: error: $CUDA_ARCHIVE is not exist!"; unset cuda-workon;unset cuda-deactive;return 127; fi
     if [ ! -d "$CUDNN_ARCHIVE" ]; then echo "cuda-virtualenv: error: $CUDNN_ARCHIVE is not exist!";unset cuda-workon;unset cuda-deactive;return 127; fi
-    export CUDA_USER_ENV_HOME=$CUDA_ENV_HOME/$userName
+    export CUDA_USER_ENV_HOME=$CUDA_ENV_HOME/$USER
     if [ ! -d "$CUDA_USER_ENV_HOME" ]; then mkdir -p "$CUDA_USER_ENV_HOME"; echo "cuda-virtualenv created CUDA_ENV_HOME $CUDA_USER_ENV_HOME"; fi
     return 0
 }
@@ -97,7 +96,6 @@ function cuda-mkvirtualenv {
         return 127
     fi
 
-
     if [ ! -d "$CUDA_ARCHIVE/cuda-$CUDAV" ]; then
         echo "cuda-virtualenv: error: $CUDA_ARCHIVE/cuda-$CUDAV is not exist."
         return 127
@@ -126,7 +124,7 @@ function cuda-mkvirtualenv {
         echo "CUDA-$CUDAV, CUDNN-$CUDNNV" > $new_cuda_env_home/info
 
         echo "cuda-virtualenv: change owners..."
-        /bin/cudaenvchw "root:root" -R $new_cuda_env_home/
+        /bin/cudaenvchw "$USER:$USER" -R $new_cuda_env_home/
 
         echo "cuda-virtualenv: done."
     else
