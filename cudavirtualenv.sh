@@ -12,15 +12,15 @@
 ##############################################################
 
 function _cudaswitcher_initlize {
-
+    export userName=$(whoami)
     if [ ! -d "$CUDA_ARCHIVE" ]; then echo "cuda-virtualenv: error: $CUDA_ARCHIVE is not exist!"; unset cuda-workon;unset cuda-deactive;return 127; fi
     if [ ! -d "$CUDNN_ARCHIVE" ]; then echo "cuda-virtualenv: error: $CUDNN_ARCHIVE is not exist!";unset cuda-workon;unset cuda-deactive;return 127; fi
-    if [ ! -d "$CUDA_ENVHOME" ]; then mkdir -p "$CUDA_ENVHOME"; echo "cuda-virtualenv created CUDA_ENVHOME $CUDA_ENVHOME"; fi
+    export CUDA_USER_ENV_HOME=$CUDA_ENV_HOME/$userName
+    if [ ! -d "$CUDA_USER_ENV_HOME" ]; then mkdir -p "$CUDA_USER_ENV_HOME"; echo "cuda-virtualenv created CUDA_ENV_HOME $CUDA_USER_ENV_HOME"; fi
     return 0
 }
 _cudaswitcher_initlize
 if [ ! "$?" -eq "0" ]; then echo "some errors are occured."; return 127; fi
-
 
 # cuda-workon command help info
 function _help {
@@ -109,8 +109,8 @@ function cuda-mkvirtualenv {
     fi
 
 
-#    local new_cuda_env_home="$CUDA_ENVHOME/cuda-$CUDAV-$CUDNNV"
-    local new_cuda_env_home="$CUDA_ENVHOME/$ENVNAME"
+#    local new_cuda_env_home="$CUDA_USER_ENV_HOME/cuda-$CUDAV-$CUDNNV"
+    local new_cuda_env_home="$CUDA_USER_ENV_HOME/$ENVNAME"
     if [ ! -d "$new_cuda_env_home" ]; then
 
         echo "mkdir $new_cuda_env_home ..."
@@ -156,20 +156,22 @@ function cuda-workon {
 
     local _workon_env_name="$1"
 
-    if [ ! -d "$CUDA_ENVHOME/$_workon_env_name" ]; then
-        echo "Error: $CUDA_ENVHOME/$_workon_env_name is not exist."
+    if [ ! -d "$CUDA_USER_ENV_HOME/$_workon_env_name" ]; then
+        echo "Error: $CUDA_USER_ENV_HOME/$_workon_env_name is not exist."
         return 127
     fi
 
-    _cuda_PATH="$CUDA_ENVHOME/$_workon_env_name/bin"
+    _cuda_PATH="$CUDA_USER_ENV_HOME/$_workon_env_name/bin"
     export PATH="$_cuda_PATH:$PATH"
 
-    _cuda_LD_PATH="$CUDA_ENVHOME/$_workon_env_name/lib64"
+    _cuda_LD_PATH="$CUDA_USER_ENV_HOME/$_workon_env_name/lib64"
     export LD_LIBRARY_PATH="$_cuda_LD_PATH:$LD_LIBRARY_PATH"
 
 
     _cuda_PS_PATH="\[\033[32m\][NVIDIA:$_workon_env_name]\[\033[0m\]"
     export PS1="${_cuda_PS_PATH}$PS1"
+
+    export CUDA_HOME="$CUDA_USER_ENV_HOME/$_workon_env_name"
 
     export _cuda_switcher_worked_on=true
     export _cuda_active_env_name=$_workon_env_name
@@ -187,6 +189,8 @@ function cuda-deactive {
     export LD_LIBRARY_PATH=$(echo $LD_LIBRARY_PATH | sed "s#${_cuda_LD_PATH}:##")
     export PS1=$(python -c "print(r'$PS1'.replace(r'$_cuda_PS_PATH',''))")
 
+    unset CUDA_HOME
+
     export _cuda_switcher_worked_on=false
     unset _cuda_active_env_name
 }
@@ -199,15 +203,15 @@ function cuda-rmvirtualenv {
         return 127
     fi
 
-    if [ ! -d $CUDA_ENVHOME/$1 ]; then
-        echo "cuda-virtualenv: error: $CUDA_ENVHOME/$1 is not exsit, please check the input."
+    if [ ! -d $CUDA_USER_ENV_HOME/$1 ]; then
+        echo "cuda-virtualenv: error: $CUDA_USER_ENV_HOME/$1 is not exsit, please check the input."
         return 127
     fi
 
     echo "Removing $1..."
 
-    /bin/cudaenvchw "$USER:$USER" -R $CUDA_ENVHOME/$1/
-    /bin/rm -rf "$CUDA_ENVHOME/$1/"
+    /bin/cudaenvchw "$USER:$USER" -R $CUDA_USER_ENV_HOME/$1/
+    /bin/rm -rf "$CUDA_USER_ENV_HOME/$1/"
 
     if [ "$_cuda_switcher_worked_on" == true ]; then
         cuda-deactive "$_cuda_active_env_name"
@@ -220,20 +224,20 @@ function cuda-rmvirtualenv {
 function cuda-cdvirtualenv {
 
     if [ $# -ge 1 ];then
-        if [ ! -d $CUDA_ENVHOME/$1 ]; then
-            echo "cuda-virtualenv: error: $CUDA_ENVHOME/$1 is not exsit, please check the input."
+        if [ ! -d $CUDA_USER_ENV_HOME/$1 ]; then
+            echo "cuda-virtualenv: error: $CUDA_USER_ENV_HOME/$1 is not exsit, please check the input."
             return 127
         fi
-        cd $CUDA_ENVHOME/$1/
+        cd $CUDA_USER_ENV_HOME/$1/
         return 0
     fi
 
     if [ "$_cuda_switcher_worked_on" == true ]; then
-        if [ ! -d "$CUDA_ENVHOME/$_cuda_active_env_name" ]; then
-            echo "cuda-virtualenv: error: $CUDA_ENVHOME/$_cuda_active_env_name is not exist, or active virtualenv is missing"
+        if [ ! -d "$CUDA_USER_ENV_HOME/$_cuda_active_env_name" ]; then
+            echo "cuda-virtualenv: error: $CUDA_USER_ENV_HOME/$_cuda_active_env_name is not exist, or active virtualenv is missing"
             return 127
         fi
-        cd $CUDA_ENVHOME/$_cuda_active_env_name/
+        cd $CUDA_USER_ENV_HOME/$_cuda_active_env_name/
     else
         echo "cuda-virtualenv: Please specify an environment you want to check"
         return 127
@@ -244,20 +248,20 @@ function cuda-cdvirtualenv {
 # print the working cuda-virtualenv info or a specify one.
 function cuda-envinfo {
     if [ $# -ge 1 ];then
-        if [ ! -d $CUDA_ENVHOME/$1 ]; then
-            echo "cuda-virtualenv: error: $CUDA_ENVHOME/$1 is not exsit, please check the input."
+        if [ ! -d $CUDA_USER_ENV_HOME/$1 ]; then
+            echo "cuda-virtualenv: error: $CUDA_USER_ENV_HOME/$1 is not exsit, please check the input."
             return 127
         fi
-        cat $CUDA_ENVHOME/$1/info
+        cat $CUDA_USER_ENV_HOME/$1/info
         return 0
     fi
 
     if [ "$_cuda_switcher_worked_on" == true ]; then
-        if [ ! -d "$CUDA_ENVHOME/$_cuda_active_env_name" ]; then
-            echo "cuda-virtualenv: error: $CUDA_ENVHOME/$_cuda_active_env_name is not exist, or active virtualenv is missing"
+        if [ ! -d "$CUDA_USER_ENV_HOME/$_cuda_active_env_name" ]; then
+            echo "cuda-virtualenv: error: $CUDA_USER_ENV_HOME/$_cuda_active_env_name is not exist, or active virtualenv is missing"
             return 127
         fi
-        cat $CUDA_ENVHOME/$_cuda_active_env_name/info
+        cat $CUDA_USER_ENV_HOME/$_cuda_active_env_name/info
     else
         echo "cuda-virtualenv: Please specify an environment you want to check"
         return 127
@@ -279,36 +283,36 @@ _cudamkenv_complete_func()
 
     if [[ ${prev} == '--cudav' ]] ; then
         local _cudnnv=''
-        for i in ${!COMP_WORDS[@]}; do
+        for i in "${!COMP_WORDS[@]}"; do
             if [ "${COMP_WORDS[$i]}" == "--cudnnv" ]  && [ ${#COMP_WORDS[@]} -gt $[ $i + 1 ] ]; then
                 _cudnnv=${COMP_WORDS[ $[ $i + 1 ] ]}
             fi
         done
 
         if [ -n "$_cudnnv" ]; then
-            local _cudav_valid_stage1=(`\ls -l $CUDNN_ARCHIVE 2>/dev/null | grep "^d" | awk '{print $9}' | grep "cudnn-$_cudnnv-" | cut -d '-' -f 4`)
-            for _cav in ${_cudav_valid_stage1[@]}; do
+            local _cudav_valid_stage1=$(\ls -lh $CUDNN_ARCHIVE 2>/dev/null | grep "^d" | awk '{print $9}' | grep "cudnn-$_cudnnv-" | cut -d '-' -f 4)
+            for _cav in "${_cudav_valid_stage1[@]}"; do
                 if [ -d "$CUDA_ARCHIVE/cuda-$_cav" ];then
                     opts="$opts $_cav"
                 fi
             done
         else
-            opts="$(\ls -l $CUDA_ARCHIVE 2>/dev/null | grep "^d" | awk '{print $9}' | grep 'cuda-.*' | cut -d '-' -f 2 | tr '\n' " ")"
+            opts="$(\ls -lh $CUDA_ARCHIVE 2>/dev/null | grep "^d" | awk '{print $9}' | grep 'cuda-.*' | cut -d '-' -f 2 | tr '\n' " ")"
         fi
 
     elif [[ ${prev} == '--cudnnv' ]] ; then
         local _cudav=''
 
-        for i in ${!COMP_WORDS[@]}; do
+        for i in "${!COMP_WORDS[@]}"; do
             if [ "${COMP_WORDS[$i]}" == "--cudav" ]  && [ ${#COMP_WORDS[@]} -gt $[ $i + 1 ] ]; then
                 _cudav=${COMP_WORDS[ $[ $i + 1 ] ]}
             fi
         done
 
         if [ -n "$_cudav" ]; then
-            opts="$(\ls -l $CUDNN_ARCHIVE 2>/dev/null | grep "^d" | awk '{print $9}' | grep "cudnn-.*-forcuda-$_cudav" | cut -d '-' -f 2 | tr '\n' " ")"
+            opts="$(\ls -lh $CUDNN_ARCHIVE 2>/dev/null | grep "^d" | awk '{print $9}' | grep "cudnn-.*-forcuda-$_cudav" | cut -d '-' -f 2 | tr '\n' " ")"
         else
-            opts="$(\ls -l $CUDNN_ARCHIVE 2>/dev/null  | grep "^d" | awk '{print $9}' | grep 'cudnn-.*' | cut -d '-' -f 2 | tr '\n' " ")"
+            opts="$(\ls -lh $CUDNN_ARCHIVE 2>/dev/null  | grep "^d" | awk '{print $9}' | grep 'cudnn-.*' | cut -d '-' -f 2 | tr '\n' " ")"
         fi
     elif [[ ${prev} == '--envname' ]] ; then
         opts=''
@@ -331,7 +335,7 @@ function _cuda_version_complete_func {
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
     if [ ${#COMP_WORDS[@]} -eq 2 ]; then
-        opts="$(\ls -l $CUDA_ENVHOME 2>/dev/null | grep "^d" | awk '{print $9}' | tr '\n' " ")"
+        opts="$(\ls -lh $CUDA_USER_ENV_HOME 2>/dev/null | grep "^d" | awk '{print $9}' | tr '\n' " ")"
     else
         opts=""
     fi

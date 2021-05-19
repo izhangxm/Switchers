@@ -1,6 +1,6 @@
 #!/bin/bash
 ##############################################################
-# File Name: cudnn_untar.sh
+# File Name: cudnn_install.sh
 # Version: V1.0
 # Author: Simon Jang
 # Organization: http://www.izhangxm.com
@@ -9,8 +9,7 @@
 
 ##############################################################
 
-
-if [ ! -d "$CUDA_ARCHIVE" ]; then echo "cuda-virtualenv: error: $CUDA_ARCHIVE is not exist!";return 127; fi
+if [ ! -d "$CUDNN_ARCHIVE" ]; then echo "cuda-virtualenv: error: $CUDNN_ARCHIVE is not exist!";return 127; fi
 
 CUDNN_TARS=$1
 
@@ -18,9 +17,9 @@ CUDNN_TARS=$1
 
 cd $CUDNN_TARS || echo $CUDNN_TARS "not exist" && return 127;
 
-cudnns=$(\ls cudnn*.tgz)
+cudnns=$(\ls -h cudnn*.tgz)
 
-for v in ${cudnns[@]};do
+for v in "${cudnns[@]}";do
 
     echo "--------------------------------------------------------"
     echo tar name is "$v"
@@ -29,7 +28,7 @@ for v in ${cudnns[@]};do
     new_cudnn_dir_name="cudnn-$cudnnv-forcuda-$cudav"
     echo new_cudnn_dir_name: "$new_cudnn_dir_name"
     if [ -d $CUDNN_ARCHIVE/$new_cudnn_dir_name ];then
-        echo 'exist'
+        echo "$new_cudnn_dir_name is exist, stepped over!"
         continue
     fi
 
