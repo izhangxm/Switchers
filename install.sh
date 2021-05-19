@@ -113,7 +113,10 @@ export GCC_ARCHIVE=$GCC_HOME/gcc-archive
 source /usr/local/bin/gccswitcher.sh
 EOF
 
-CUDA_ENV_HOME=$NVIDIA_HOME/cuda_envs
+NVIDIA_HOME=$MY_ALL_HOME/NVIDIA_HOME
+export CUDA_ENV_HOME=$NVIDIA_HOME/cuda_envs
+export GCC_HOME=$MY_ALL_HOME/GCC_HOME
+mkdir -p $GCC_HOME
 mkdir -p $CUDA_ENV_HOME
 chmod 1777 $CUDA_ENV_HOME
 
