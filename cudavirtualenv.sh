@@ -7,7 +7,7 @@
 # Created Time : 2020-09-07 19:00:03
 # Description:
 # This is a cuda version switcher developed by ustb-lab, which can
-# switch your shell environment to any version of cuda and cudnn quikly.
+# switch your shell environment to any version of cuda and cudnn quickly.
 
 ##############################################################
 

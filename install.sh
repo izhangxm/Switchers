@@ -78,9 +78,12 @@ export PYTHONPATH='.'
 export WORKON_HOME=~/.envs
 export VIRTUALENV_BASE=$PYENV_ROOT/versions/3.8.6
 export VIRTUALENVWRAPPER_PYTHON=$VIRTUALENV_BASE/bin/python
-#source $VIRTUALENV_BASE/bin/virtualenvwrapper.sh
+source $VIRTUALENV_BASE/bin/virtualenvwrapper.sh
 
 EOF
+PYENV_ROOT="$MY_ALL_HOME/PyEnv"
+mkdir -p $PYENV_ROOT
+
 
 # ========================================== NVIDIA INSTALL ==============================================
 \cp /bin/cp /bin/cudaenvcp
