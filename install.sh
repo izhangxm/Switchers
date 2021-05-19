@@ -9,6 +9,8 @@
 # This is a base env installer developed by ustb-lab
 ##############################################################
 USER_RC_FILE=/etc/bashrc_custom
+GIT_URL=https://izhangxm.coding.net/p/git/d/Switchers/git/raw/master
+
 
 # clean old info
 rm -rf "$USER_RC_FILE"
@@ -86,8 +88,8 @@ EOF
 \chmod u+s /bin/cudaenvcp
 \chmod u+s /bin/cudaenvchw
 
-wget https://gitee.com/izhangxm/switchers/raw/master/cudavirtualenv.sh -O /usr/local/bin/cudavirtualenv.sh
-wget https://gitee.com/izhangxm/switchers/raw/master/cudnn_install.sh -O /usr/local/bin/cudnn_install.sh
+wget $GIT_URL/cudavirtualenv.sh -O /usr/local/bin/cudavirtualenv.sh
+wget $GIT_URL/cudnn_install.sh -O /usr/local/bin/cudnn_install.sh
 chmod +x /usr/local/bin/cudavirtualenv.sh
 chmod +x /usr/local/bin/cudnn_install.sh
 
@@ -101,7 +103,7 @@ source /usr/local/bin/cudavirtualenv.sh
 EOF
 
 # ============================================ GCC INSTALL ======================================================
-wget https://gitee.com/izhangxm/switchers/raw/master/gccswitcher.sh -O /usr/local/bin/gccswitcher.sh
+wget $GIT_URL/gccswitcher.sh -O /usr/local/bin/gccswitcher.sh
 chmod +x /usr/local/bin/gccswitcher.sh
 
 cat >> "$USER_RC_FILE" <<"EOF"
