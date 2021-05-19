@@ -13,6 +13,7 @@ USER_RC_FILE=/etc/bashrc_custom
 # clean old info
 rm -rf "$USER_RC_FILE"
 sed -i '/source \/etc\/bashrc_custom/d' /etc/bashrc
+sed -i '/#---------/,$d' /etc/bashrc
 
 # write new command
 echo "source $USER_RC_FILE" >> /etc/bashrc
