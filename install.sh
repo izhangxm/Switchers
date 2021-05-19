@@ -71,7 +71,7 @@ export PYENV_ROOT="$MY_ALL_HOME/PyEnv"
 export PYTHON_CONFIGURE_OPTS="--enable-shared"
 export PYENV_VIRTUALENV_DISABLE_PROMPT=0
 export PATH=$PYENV_ROOT/bin:$PATH
-#eval "$(pyenv init -)"
+eval "$(pyenv init --path)"
 
 
 export PYTHONPATH='.'
