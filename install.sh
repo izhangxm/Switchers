@@ -21,7 +21,7 @@ sed -i '/#---------/,$d' /etc/bashrc
 echo "source $USER_RC_FILE" >> /etc/bashrc
 cat >> "$USER_RC_FILE" <<"EOF"
 #--------------------------------------------- 基础设置 -------------------------------------
-export PATH=/usr/local/bin:$PATH
+export PATH=/usr/local/bin:/usr/local/bin:/usr/sbin:/usr/bin
 export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:/usr/lib:/usr/lib64
 
 alias axel='axel -a'
@@ -67,6 +67,20 @@ alias woyaofanqiang='fanqiangdaili'
 export MY_ALL_HOME=/home/local
 
 #--------------------------------------------- Python相关 -------------------------------------
+ANACONDA_HOME=$MY_ALL_HOME/Anaconda/anaconda3.2021.5
+__conda_setup="$($ANACONDA_HOME/bin/conda 'shell.bash' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "$ANACONDA_HOME/etc/profile.d/conda.sh" ]; then
+        . "$ANACONDA_HOME/etc/profile.d/conda.sh"
+    else
+        export PATH="$ANACONDA_HOME/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+
+
 export PYENV_ROOT="$MY_ALL_HOME/PyEnv"
 export PYTHON_CONFIGURE_OPTS="--enable-shared"
 export PYENV_VIRTUALENV_DISABLE_PROMPT=0
