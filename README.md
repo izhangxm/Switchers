@@ -106,5 +106,17 @@ CUDA-11.0, CUDNN-8.0.2.39
 GCC版本切换器只有激活和反激活的功能，没有创建和删除，前缀为`gcc-`, 使用方法与cuda-env一致
 
 
+### virtualenv 脚本替换
+由于virtualenv反激活时会直接替换相关变量为旧变量，所以为了使virtualenv和cudavirtualenv和gccswitcher兼容，需要将
+virtualenv的激活脚本替换为mod之后的版本
+
+```shell
+virtual_dir="$(dirname $(pip -V | awk -F ' ' '{print $4}'))/virtualenv/activation/bash"
+curl -L https://izhangxm.coding.net/p/git/d/Switchers/git/raw/master/activate.sh >  $virtual_dir/activate.sh
+```
+
+### anaconda脚本替换
+TODO: 待完成
+
 ### License
 The project is released under the terms of the GPLv3.
