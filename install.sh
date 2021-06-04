@@ -68,6 +68,7 @@ export MY_ALL_HOME=/home/local
 
 #--------------------------------------------- Python相关 -------------------------------------
 ANACONDA_HOME=$MY_ALL_HOME/Anaconda/anaconda3.2021.5
+export CONDA_ENVS_PATH=$HOME/.conda/envs
 __conda_setup="$($ANACONDA_HOME/bin/conda 'shell.bash' 'hook' 2> /dev/null)"
 if [ $? -eq 0 ]; then
     eval "$__conda_setup"

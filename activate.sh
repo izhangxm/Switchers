@@ -78,7 +78,7 @@ if [ -z "${VIRTUAL_ENV_DISABLE_PROMPT-}" ] ; then
         _VENV_PS="__VIRTUAL_PROMPT__"
         PS1="$_VENV_PS${PS1-}"
     else
-        _VENV_PS="(`basename \"$VIRTUAL_ENV\"`) "
+        _VENV_PS="[VENV:`basename \"$VIRTUAL_ENV\"`]"
         PS1="$_VENV_PS${PS1-}"
     fi
     export PS1
