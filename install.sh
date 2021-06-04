@@ -38,7 +38,7 @@ _bendi_port=8888
 function bendidaili(){
     export http_proxy="$_proxy_server:$_bendi_port"
     export ftp_proxy="$_proxy_server:$_bendi_port"
-    export https_roxy="$_proxy_server:$_bendi_port"
+    export https_proxy="$_proxy_server:$_bendi_port"
     export HTTP_PROXY="$_proxy_server:$_bendi_port"
     export HTTPS_PROXY="$_proxy_server:$_bendi_port"
     export RSYNC_PROXY="$_proxy_server:$_bendi_port"
@@ -46,7 +46,7 @@ function bendidaili(){
 function fanqiangdaili(){
     export ftp_proxy="$_proxy_server:$_fanqiang_port"
     export http_proxy="$_proxy_server:$_fanqiang_port"
-    export https_roxy="$_proxy_server:$_fanqiang_port"
+    export https_proxy="$_proxy_server:$_fanqiang_port"
     export HTTP_PROXY="$_proxy_server:$_fanqiang_port"
     export HTTPS_PROXY="$_proxy_server:$_fanqiang_port"
     export RSYNC_PROXY="$_proxy_server:$_fanqiang_port"
